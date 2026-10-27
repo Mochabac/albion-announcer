@@ -40,8 +40,9 @@ def load_settings(env: Mapping[str, str] | None = None, *, require_token: bool =
         token = ""
     if require_token and not token:
         raise ConfigError(
-            "DISCORD_TOKEN is not set. Copy .env.example to .env and paste the bot token "
-            "from https://discord.com/developers/applications (your application → Bot)."
+            "DISCORD_TOKEN is not set. Run ./run.sh --setup, or copy .env.example to .env and "
+            "paste the bot token from https://discord.com/developers/applications "
+            "(your application → Bot)."
         )
 
     language = env.get("DEFAULT_LANGUAGE", "").strip().lower() or DEFAULT_LANGUAGE

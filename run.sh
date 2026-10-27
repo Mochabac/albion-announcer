@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Start the bot. `./run.sh --check` validates .env and activities.toml without connecting.
+# Start the bot. `./run.sh --setup` asks for the bot token and saves it in .env;
+# `./run.sh --check` validates .env and activities.toml without connecting.
 set -euo pipefail
 cd "$(dirname "$0")"
-if [[ "${1:-}" != "--check" ]]; then
+if [[ "${1:-}" != "--check" && "${1:-}" != "--setup" ]]; then
     # One copy at a time: a second one would answer every button twice. The lock is on
     # this folder and is held for as long as the bot runs, however it ends.
     exec 9<.

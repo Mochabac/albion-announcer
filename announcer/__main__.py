@@ -11,6 +11,7 @@ from collections.abc import Sequence
 import discord
 from dotenv import load_dotenv
 
+from . import setup
 from .bot import AnnouncerBot
 from .catalog import CatalogError, load_catalog
 from .config import ROOT, ConfigError, load_settings
@@ -21,12 +22,20 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="announcer", description="Albion Online guild activity announcer for Discord."
     )
-    parser.add_argument(
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
         "--check",
         action="store_true",
         help="validate .env and activities.toml, then exit without connecting to Discord",
     )
+    mode.add_argument(
+        "--setup",
+        action="store_true",
+        help="ask for the bot token, check it with Discord and save it in .env",
+    )
     args = parser.parse_args(argv)
+    if args.setup:
+        return setup.run(ROOT / ".env")
 
     load_dotenv(ROOT / ".env")
     try:
@@ -40,7 +49,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         names = ", ".join(activity.label(settings.default_language) for activity in catalog.buttons)
         print(f"{settings.activities_file.name}: {len(catalog.buttons)} buttons — {names}")
         print(f"sign-up roles: {', '.join(catalog.roles)}")
-        print("token: " + ("set" if settings.token else "NOT SET (put DISCORD_TOKEN in .env)"))
+        print("token: " + ("set" if settings.token else "NOT SET (run ./run.sh --setup)"))
         return 0
 
     discord.utils.setup_logging(level=getattr(logging, settings.log_level))
@@ -59,7 +68,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     except discord.LoginFailure:
         print(
             "error: Discord rejected the token. Reset it in the Developer Portal "
-            "(your application → Bot → Reset Token) and update DISCORD_TOKEN in .env.",
+            "(your application → Bot → Reset Token) and save the new one with ./run.sh --setup.",
             file=sys.stderr,
         )
         return 2

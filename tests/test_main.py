@@ -63,7 +63,7 @@ def test_settings_overrides(tmp_path: Path) -> None:
 
 @pytest.mark.parametrize("token", ["", "   ", TOKEN_PLACEHOLDER])
 def test_a_missing_token_is_explained(token: str) -> None:
-    with pytest.raises(ConfigError, match=r"DISCORD_TOKEN is not set\. Copy \.env\.example"):
+    with pytest.raises(ConfigError, match=r"DISCORD_TOKEN is not set\. Run \./run\.sh --setup"):
         load_settings({"DISCORD_TOKEN": token})
     # --check runs without one.
     assert load_settings({"DISCORD_TOKEN": token}, require_token=False).token == ""

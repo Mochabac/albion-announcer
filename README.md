@@ -34,9 +34,10 @@ You need [uv](https://docs.astral.sh/uv/) and a Discord application.
    needed; leave them all off.
 2. **Give it the token.**
    ```bash
-   cp .env.example .env
-   $EDITOR .env               # paste the token after DISCORD_TOKEN=
+   ./run.sh --setup           # asks for it (hidden), checks it with Discord, writes .env
    ```
+   It also prints the invite link. By hand instead: `cp .env.example .env` and paste the
+   token after `DISCORD_TOKEN=`. Either way `.env` stays on your machine: git ignores it.
 3. **Start it.**
    ```bash
    ./run.sh
