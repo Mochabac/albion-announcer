@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import re
 from dataclasses import replace
+from typing import Any
 
 import discord
 import pytest
 
 from announcer import render
-from announcer.catalog import LABEL_LIMIT, MAX_LIMIT, MAX_ROLES, Catalog, Role
+from announcer.catalog import MAX_LIMIT, MAX_ROLES, ROLE_LABELS_TOTAL, Catalog, Role
 from announcer.store import GuildConfig, Signup, Store
 
 from .conftest import NOW, capped
@@ -16,6 +17,8 @@ from .fakes import new_event
 CREATED = int(NOW.timestamp())  # Sunday 2026-10-04, 18:00 UTC
 AT_2030 = CREATED + 150 * 60
 SATURDAY_19 = CREATED + 6 * 86_400 + 3_600
+# The longest names twenty roles can all have at once.
+LONGEST = ROLE_LABELS_TOTAL // MAX_ROLES
 
 
 def field(embed: discord.Embed, name: str) -> str:
@@ -24,6 +27,12 @@ def field(embed: discord.Embed, name: str) -> str:
 
 def names(embed: discord.Embed) -> list[str]:
     return [f.name or "" for f in embed.fields]
+
+
+def roster(embed: discord.Embed) -> list[Any]:
+    """A comp's list of positions: its first field and the ones it goes on in."""
+    start = next(n for n, f in enumerate(embed.fields) if (f.name or "").startswith("👥"))
+    return embed.fields[start:]
 
 
 # --- the content line --------------------------------------------------------------
@@ -283,7 +292,7 @@ def test_the_biggest_comp_still_fits_in_an_embed(store: Store, lang: str) -> Non
     # The most positions, the longest names, animated server emoji, each one full.
     emoji = "<a:" + "e" * 32 + ":123456789012345678901>"
     roles = {
-        f"r{n}": Role(f"r{n}", emoji, {"en": "L" * LABEL_LIMIT}, limit=MAX_LIMIT)
+        f"r{n}": Role(f"r{n}", emoji, {"en": "L" * LONGEST}, limit=MAX_LIMIT)
         for n in range(MAX_ROLES)
     }
     event = new_event(
@@ -305,16 +314,110 @@ def test_the_biggest_comp_still_fits_in_an_embed(store: Store, lang: str) -> Non
     signups = [Signup(1234567890123456000 + n, f"r{n % MAX_ROLES}") for n in range(players)]
     embed = render.announcement_embed(event, signups, Catalog(roles=roles, activities=()))
 
-    assert len(embed) <= render.EMBED_LIMIT
-    positions = embed.fields[-1]
-    assert (positions.name or "").endswith(f"· {players}/{players} ✅")
-    lines = (positions.value or "").split("\n")
-    assert len(positions.value or "") <= render.FIELD_LIMIT and len(lines) == MAX_ROLES
+    assert len(embed) <= render.EMBED_LIMIT and len(embed.fields) <= render.FIELD_COUNT_LIMIT
+    positions = roster(embed)
+    assert (positions[0].name or "").endswith(f"· {players}/{players} ✅")
+    assert all(f.name == render.BLANK and f.inline is False for f in positions[1:])
+    assert all(len(f.value or "") <= render.FIELD_LIMIT for f in positions)
+    lines = [line for f in positions for line in (f.value or "").split("\n")]
+    assert len(lines) == MAX_ROLES
     more = "more" if lang == "en" else "más"
     for line in lines:
         # Each position is honest about who did not fit on its line.
         hidden = int(line.rsplit("+", 1)[1].split()[0])
         assert line.endswith(more) and line.count("<@") + hidden == MAX_LIMIT
+
+
+def test_a_big_comp_shows_every_name_while_they_fit(store: Store) -> None:
+    # The guild's ZvZ: sixteen positions for one player and one for three. An even share
+    # of the field would leave the line of three too short for its names.
+    roles = {f"r{n}": Role(f"r{n}", "⚔️", {"en": f"Position {n}"}, limit=1) for n in range(16)}
+    roles["trio"] = Role("trio", "⚔️", {"en": "Galatinas"}, limit=3)
+    event = new_event(store, roles=tuple(roles))
+    signups = [Signup(1234567890123456000 + n, f"r{n}") for n in range(16)]
+    signups += [Signup(1234567890123456100 + n, "trio") for n in range(3)]
+    embed = render.announcement_embed(event, signups, Catalog(roles=roles, activities=()))
+
+    roster = embed.fields[-1]
+    assert roster.name == "👥 Positions · 19/19 ✅"
+    assert all(f"<@{signup.user_id}>" in (roster.value or "") for signup in signups)
+    assert "more" not in (roster.value or "")
+    assert (roster.value or "").endswith(
+        "⚔️ **Galatinas** (3/3) — <@1234567890123456100>, <@1234567890123456101>, "
+        "<@1234567890123456102>"
+    )
+
+
+def test_a_comp_too_long_for_one_field_goes_on_in_the_next(store: Store) -> None:
+    roles = {f"r{n}": Role(f"r{n}", "⚔️", {"en": "L" * LONGEST}, limit=1) for n in range(MAX_ROLES)}
+    event = new_event(store, roles=tuple(roles))
+    signups = [Signup(1234567890123456000 + n, f"r{n}") for n in range(MAX_ROLES)]
+    embed = render.announcement_embed(event, signups, Catalog(roles=roles, activities=()))
+
+    first, second = roster(embed)
+    assert first.name == f"👥 Positions · {MAX_ROLES}/{MAX_ROLES} ✅"
+    assert second.name == render.BLANK and second.inline is False
+    assert len(first.value or "") <= render.FIELD_LIMIT
+    # In order, everyone named, and no line split between the two.
+    assert f"{first.value}\n{second.value}".split("\n") == [
+        f"⚔️ **{'L' * LONGEST}** — <@{signup.user_id}>" for signup in signups
+    ]
+
+
+def test_a_big_position_gets_the_room_the_small_ones_leave(store: Store) -> None:
+    roles = {f"r{n}": Role(f"r{n}", "⚔️", {"en": f"Position {n}"}, limit=1) for n in range(19)}
+    roles["falce"] = Role("falce", "🪓", {"en": "Falce"}, limit=MAX_LIMIT)
+    event = new_event(store, roles=tuple(roles))
+    singles = [Signup(1234567890123456000 + n, f"r{n}") for n in range(19)]
+    falces = [Signup(1234567890123456100 + n, "falce") for n in range(MAX_LIMIT)]
+    embed = render.announcement_embed(event, singles + falces, Catalog(roles=roles, activities=()))
+
+    *lines, falce = [line for f in roster(embed) for line in (f.value or "").split("\n")]
+    assert [line.rsplit(" ", 1)[1] for line in lines] == [f"<@{s.user_id}>" for s in singles]
+    # Nearly a field's worth of names: an even share of the embed would have shown eleven.
+    shown, hidden = falce.count("<@"), int(falce.rsplit("+", 1)[1].split()[0])
+    assert shown + hidden == MAX_LIMIT and shown >= 40
+
+
+@pytest.mark.parametrize("lang", ["en", "es"])
+@pytest.mark.parametrize("each", [2, 50])
+def test_the_most_columns_still_fit_in_an_embed(store: Store, lang: str, each: int) -> None:
+    # The most head-count roles, the longest names, animated server emoji, everything else
+    # at its longest too, and a sign-up for a role the event no longer offers. Two players
+    # a role is the tightest case: their two names would fill a column of 48 characters.
+    emoji = "<a:" + "e" * 32 + ":123456789012345678901>"
+    roles = {f"r{n}": Role(f"r{n}", emoji, {"en": "L" * LONGEST}) for n in range(MAX_ROLES)}
+    event = new_event(
+        store,
+        language=lang,
+        title="T" * 100,
+        message="M" * 1500,
+        when_kind="text",
+        when_text="W" * 60,
+        location="L" * 100,
+        gear="G" * 100,
+        notes="N" * 1000,
+        voice_channel_id=1234567890123456789,
+        author_name="A" * 32,
+        status="started",
+        roles=tuple(roles),
+    )
+    signups = [
+        Signup(1234567890123456000 + n, f"r{n % MAX_ROLES}") for n in range(MAX_ROLES * each)
+    ]
+    signups.append(Signup(10, "ghost"))
+    embed = render.announcement_embed(event, signups, Catalog(roles=roles, activities=()))
+
+    assert len(embed) <= render.EMBED_LIMIT
+    # Five details and every role's column: Discord's 25 fields. The stray sign-up gave way.
+    assert len(embed.fields) == render.FIELD_COUNT_LIMIT
+    columns = embed.fields[-MAX_ROLES:]
+    assert [column.name for column in columns] == [f"{emoji} {'L' * LONGEST} · {each}"] * MAX_ROLES
+    more = "more" if lang == "en" else "más"
+    for column in columns:
+        value = column.value or ""
+        hidden = int(value.rsplit("+", 1)[1].split()[0])
+        assert value.endswith(more) and value.count("<@") + hidden == each and "<@" in value
 
 
 @pytest.mark.parametrize("count", [1, 2, 9, 10, 11, 40, 45, 200])

@@ -16,12 +16,17 @@ CUSTOM_KEY = "custom"
 STYLES = ("primary", "secondary", "success", "danger")
 # With the custom button that is 25: the most buttons one Discord message can hold.
 MAX_ACTIVITIES = 24
-# Per activity: two rows of buttons, with "Leave" and "Manage" on a third.
-MAX_ROLES = 8
+# Per activity: four rows of buttons, with "Leave" and "Manage" on a fifth — all the rows
+# a Discord message can hold.
+MAX_ROLES = 20
 # The most players a sign-up role can be limited to.
 MAX_LIMIT = 50
 # The form's title is "<emoji> <label>" and Discord caps it at 45 characters.
 LABEL_LIMIT = 40
+# A sign-up role's name is only ever a button's, and Discord caps those at 80 characters.
+ROLE_LABEL_LIMIT = 80
+# An activity's role names together: twenty of 50 characters still fit in one announcement.
+ROLE_LABELS_TOTAL = 1000
 MESSAGE_LIMIT = 1000
 RENDER_URL = "https://render.albiononline.com/v1/item/{item}.png"
 
@@ -137,7 +142,7 @@ def _role(key: str, raw: Any) -> Role:
     return Role(
         key=key,
         emoji=_emoji(table, where),
-        labels=_languages(table, where, limit=LABEL_LIMIT),
+        labels=_languages(table, where, limit=ROLE_LABEL_LIMIT),
         limit=_limit(table, where),
     )
 
@@ -299,4 +304,11 @@ def _roles(table: Mapping[str, Any], where: str, roles: Mapping[str, Role]) -> t
     for key in value:
         if key not in roles:
             raise CatalogError(f"{where}: role `{key}` is not defined under [roles].")
+    for lang in LANGUAGES:
+        total = sum(len(roles[key].label(lang)) for key in value)
+        if total > ROLE_LABELS_TOTAL:
+            raise CatalogError(
+                f"{where}: the names of its roles add up to {total} characters; "
+                f"the most is {ROLE_LABELS_TOTAL}. Shorten some of them."
+            )
     return tuple(value)

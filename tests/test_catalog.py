@@ -11,6 +11,9 @@ from announcer.catalog import (
     LABEL_LIMIT,
     MAX_ACTIVITIES,
     MAX_LIMIT,
+    MAX_ROLES,
+    ROLE_LABEL_LIMIT,
+    ROLE_LABELS_TOTAL,
     Catalog,
     CatalogError,
     load_catalog,
@@ -119,6 +122,38 @@ def test_a_role_can_be_a_position_for_a_set_number_of_players() -> None:
     assert catalog.limit("tank") == 1 and catalog.limit("nobody") is None
 
 
+def test_an_activity_takes_at_most_twenty_roles() -> None:
+    data = copy.deepcopy(MINIMAL)
+    data["roles"] = {f"r{n}": {"emoji": "⚔️", "en": f"R{n}"} for n in range(MAX_ROLES + 1)}
+    data["activity"][0]["roles"] = [f"r{n}" for n in range(MAX_ROLES)]
+    assert len(parse_catalog(data).activities[0].roles) == MAX_ROLES == 20
+    data["activity"][0]["roles"].append(f"r{MAX_ROLES}")
+    with pytest.raises(CatalogError, match="21 roles is too many; the limit is 20"):
+        parse_catalog(data)
+
+
+def test_a_role_name_can_be_longer_than_an_activity_name() -> None:
+    # It is only ever a button's name, never a form's title.
+    data = copy.deepcopy(MINIMAL)
+    data["roles"]["tank"]["en"] = "x" * ROLE_LABEL_LIMIT
+    assert parse_catalog(data).roles["tank"].label("en") == "x" * ROLE_LABEL_LIMIT
+    assert ROLE_LABEL_LIMIT > LABEL_LIMIT
+
+
+def test_an_activitys_role_names_share_one_budget() -> None:
+    # Twenty long names would not fit in one announcement; seven of 80 easily do.
+    data = copy.deepcopy(MINIMAL)
+    data["roles"] = {
+        f"r{n}": {"emoji": "⚔️", "en": "x" * (ROLE_LABELS_TOTAL // MAX_ROLES)}
+        for n in range(MAX_ROLES)
+    }
+    data["activity"][0]["roles"] = list(data["roles"])
+    assert len(parse_catalog(data).activities[0].roles) == MAX_ROLES
+    data["roles"]["r0"]["es"] = "x" * (ROLE_LABELS_TOTAL // MAX_ROLES + 1)
+    with pytest.raises(CatalogError, match=f"add up to {ROLE_LABELS_TOTAL + 1} characters"):
+        parse_catalog(data)
+
+
 @pytest.mark.parametrize("limit", [0, -1, MAX_LIMIT + 1, "1", 1.5, True])
 def test_a_limit_must_be_a_sensible_number(limit: Any) -> None:
     data = copy.deepcopy(MINIMAL)
@@ -163,6 +198,10 @@ def test_get_finds_activities_and_the_custom_button() -> None:
         (broken(en=...), "English"),
         (broken(en={"label": "ZvZ", "message": " "}), "`message` must be a non-empty text"),
         (broken(en={"label": "x" * (LABEL_LIMIT + 1), "message": "m"}), "limit"),
+        (
+            {**MINIMAL, "roles": {"tank": {"emoji": "🛡️", "en": "x" * (ROLE_LABEL_LIMIT + 1)}}},
+            "limit",
+        ),
         (broken(icon="not an item!"), "icon"),
         (broken(icon="http://insecure.example/x.png"), "icon"),
         (broken(colour="#FFFFFF"), "unknown setting `colour`"),

@@ -18,7 +18,10 @@ from .store import Event, GuildConfig, Signup
 
 EMBED_LIMIT = 6000
 FIELD_LIMIT = 1024
+FIELD_COUNT_LIMIT = 25
 CONTENT_LIMIT = 2000
+# A field's name may not be empty; a zero-width space is how one goes without.
+BLANK = "​"
 PANEL_COLOR = 0xE5A823
 CLOSED_COLOR = 0x5C6370
 
@@ -188,14 +191,14 @@ def announcement_embed(event: Event, signups: Sequence[Signup], catalog: Catalog
 
     budget = EMBED_LIMIT - len(embed)
     if comp:
-        name, value = _positions(by_role, catalog, lang, budget=budget)
-        embed.add_field(name=name, value=value, inline=False)
+        for name, value in _positions(by_role, catalog, lang, budget=budget):
+            embed.add_field(name=name, value=value, inline=False)
     else:
         for name, value in _columns(by_role, catalog, lang, budget=budget):
             embed.add_field(name=name, value=value)
-    # Discord rejects the whole message if an embed is over the limit; a missing
+    # Discord rejects the whole message if an embed is over a limit; a missing
     # column is the lesser evil. The roster's budget makes this all but unreachable.
-    while len(embed) > EMBED_LIMIT and embed.fields:
+    while (len(embed) > EMBED_LIMIT or len(embed.fields) > FIELD_COUNT_LIMIT) and embed.fields:
         embed.remove_field(len(embed.fields) - 1)
     return embed
 
@@ -214,15 +217,19 @@ def _columns(
         limit = catalog.limit(key)
         names[key] = f"{title} · {len(users)}/{limit}" if limit else f"{title} · {len(users)}"
 
+    # No floor under the share: twenty of the longest names leave less than one would give.
     room = (budget - sum(len(name) for name in names.values())) // len(by_role)
-    room = max(48, min(FIELD_LIMIT, room))
+    room = min(FIELD_LIMIT, room)
     return [(names[key], _mention_block(users, room, lang)) for key, users in by_role.items()]
 
 
 def _positions(
     by_role: dict[str, list[int]], catalog: Catalog, lang: str, *, budget: int
-) -> tuple[str, str]:
-    """A comp as one list: each position on its own line, with whoever took it."""
+) -> list[tuple[str, str]]:
+    """A comp as one list: each position on its own line, with whoever took it.
+
+    A list too long for one field goes on in the next ones, under a blank name.
+    """
     limits = {key: catalog.limit(key) or 0 for key in by_role}
     filled = sum(min(len(users), limits[key]) for key, users in by_role.items())
     total = sum(limits.values())
@@ -238,14 +245,29 @@ def _positions(
             head += f" ({len(users)}/{limits[key]})"
         heads[key] = f"{head} — "
 
-    room = min(FIELD_LIMIT, budget - len(name)) - sum(len(head) for head in heads.values())
-    room = (room - len(by_role) + 1) // len(by_role)
-    lines = [
-        heads[key]
-        + (_mention_block(users, room, lang, separator=", ") if users else t(lang, "roster.open"))
-        for key, users in by_role.items()
-    ]
-    return name, clip("\n".join(lines), FIELD_LIMIT)
+    # Each line gets the room its names need while the list fits. When it does not, the
+    # lines that need least keep all of it and the others share what is left evenly.
+    # Between two lines goes a newline, or the blank name of the next field.
+    caps = {key: FIELD_LIMIT - len(head) for key, head in heads.items()}
+    needs = {key: len(_taken_by(users, caps[key], lang)) for key, users in by_role.items()}
+    room = budget - len(name) - sum(len(head) for head in heads.values()) - (len(by_role) - 1)
+    bodies = {}
+    for index, key in enumerate(sorted(by_role, key=needs.__getitem__)):
+        share = min(caps[key], room // (len(by_role) - index))
+        bodies[key] = _taken_by(by_role[key], share, lang)
+        room -= len(bodies[key])
+
+    values = [""]
+    for line in (clip(heads[key] + bodies[key], FIELD_LIMIT) for key in by_role):
+        if values[-1] and len(values[-1]) + 1 + len(line) > FIELD_LIMIT:
+            values.append("")
+        values[-1] += f"\n{line}" if values[-1] else line
+    return [(name if index == 0 else BLANK, value) for index, value in enumerate(values)]
+
+
+def _taken_by(users: Sequence[int], limit: int, lang: str) -> str:
+    """Who holds a position, or that it is open."""
+    return _mention_block(users, limit, lang, separator=", ") if users else t(lang, "roster.open")
 
 
 def _mention_block(

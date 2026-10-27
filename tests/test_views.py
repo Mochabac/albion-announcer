@@ -7,7 +7,7 @@ import discord
 import pytest
 
 from announcer import views
-from announcer.catalog import Catalog
+from announcer.catalog import MAX_ROLES, Catalog
 from announcer.i18n import LANGUAGES
 from announcer.service import Draft
 from announcer.store import Signup, Store
@@ -117,8 +117,11 @@ def test_leave_and_manage_get_a_row_of_their_own(store: Store, catalog: Catalog)
 
     assert rows(4) == [["join"] * 4, ["leave", "manage"]]
     assert rows(5) == [["join"] * 5, ["leave", "manage"]]
-    # The most roles an activity may have.
-    assert rows(8) == [["join"] * 5, ["join"] * 3, ["leave", "manage"]]
+    assert rows(17) == [["join"] * 5] * 3 + [["join"] * 2, ["leave", "manage"]]
+    # The most roles an activity may have fill Discord's five rows; one more would need a sixth.
+    assert rows(MAX_ROLES) == [["join"] * 5] * 4 + [["leave", "manage"]]
+    with pytest.raises(ValueError, match="row"):
+        rows(MAX_ROLES + 1)
     assert rows(0) == [["manage"]]
 
 

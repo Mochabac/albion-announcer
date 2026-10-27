@@ -46,7 +46,7 @@ emoji = "🏹"
 limit = 1
 en = "Support (Badon)"
 
-# Pelea / Dive (ta buffo)
+# Pelea / Dive (5)
 
 [roles.dive_tank]
 emoji = "🛡️"
@@ -61,7 +61,7 @@ en = "Healer (Info / Forja)"
 [roles.dive_support]
 emoji = "✨"
 limit = 1
-en = "Support (llama carroña / tallada)"
+en = "Support (llama carroña / tallada / para-tiempo)"
 
 [roles.dive_dps1]
 emoji = "🐻"
@@ -72,6 +72,43 @@ en = "DPS 1 (patas de oso)"
 emoji = "⚔️"
 limit = 1
 en = "DPS 2 (manos de forja / luna)"
+
+# Pelea / Dive (7)
+
+[roles.dive7_dps1]
+emoji = "⚔️"
+limit = 1
+en = "DPS 1 (guadaña / creareyes)"
+
+[roles.dive7_dps2]
+emoji = "🗡️"
+limit = 1
+en = "DPS 2 (colmillo / manos de forja)"
+
+[roles.dive7_dps3]
+emoji = "🐻"
+limit = 1
+en = "DPS 3 (luna / patas)"
+
+[roles.dive7_healer]
+emoji = "💚"
+limit = 1
+en = "Healer (Infortunio / Forjacorteza)"
+
+[roles.dive7_support]
+emoji = "✨"
+limit = 1
+en = "Support (Tallada / Llamacarroña / enigmático / paratiempo / enraizado)"
+
+[roles.dive7_tank1]
+emoji = "🔨"
+limit = 1
+en = "Tank 1 (Granmartillo / Martillo largo)"
+
+[roles.dive7_tank2]
+emoji = "🛡️"
+limit = 1
+en = "Tank 2 (Dreadstorm Monarch / Juradores)"
 
 # Skip de grupales!
 
@@ -122,12 +159,99 @@ emoji = "✨"
 limit = 1
 en = "S.C. Support"
 
-# One position for all the falces: an activity takes at most 8 roles, so five
-# separate falce buttons would not fit.
+# One position shared by all the falces, up to five of them.
 [roles.ava_falce]
 emoji = "🪓"
 limit = 5
 en = "Falce"
+
+# ZvZ: each position is a weapon, by its name in the game (in English after the #).
+
+[roles.zvz_maza]
+emoji = "🛡️"
+limit = 1
+en = "Maza Pesada"  # Heavy Mace
+
+[roles.zvz_martillo]
+emoji = "🔨"
+limit = 1
+en = "Martillo de una mano"  # Hammer
+
+[roles.zvz_juradores]
+emoji = "⚖️"
+limit = 1
+en = "Juradores"  # Oathkeepers
+
+[roles.zvz_enraizado]
+emoji = "🌳"
+limit = 1
+en = "Enraizado"  # Rootbound Staff
+
+[roles.zvz_maldicion]
+emoji = "💀"
+limit = 1
+en = "Maldición de vida o Putrefacto"  # Lifecurse Staff or Rotcaller Staff
+
+[roles.zvz_sonido]
+emoji = "🎶"
+limit = 1
+en = "Sonido Equilibrado"  # Evensong
+
+[roles.zvz_invocador]
+emoji = "🌑"
+limit = 1
+en = "Invocador Oscuro"  # Shadowcaller
+
+[roles.zvz_santificador1]
+emoji = "💚"
+limit = 1
+en = "Santificador 1"  # Hallowfall
+
+[roles.zvz_santificador2]
+emoji = "💚"
+limit = 1
+en = "Santificador 2"  # Hallowfall
+
+[roles.zvz_infortunio]
+emoji = "🌿"
+limit = 1
+en = "Infortunio"  # Blight Staff
+
+[roles.zvz_exaltado]
+emoji = "🌟"
+limit = 1
+en = "Exaltado"  # Exalted Staff
+
+[roles.zvz_romperreinos]
+emoji = "🪓"
+limit = 1
+en = "Romperreinos"  # Realmbreaker
+
+[roles.zvz_cazaespiritus]
+emoji = "🗡️"
+limit = 1
+en = "Cazaespíritus o Tallada"  # Spirithunter or Carving Sword
+
+[roles.zvz_arcolargo]
+emoji = "🏹"
+limit = 1
+en = "Arco Largo"  # Longbow
+
+[roles.zvz_cancion]
+emoji = "🔥"
+limit = 1
+en = "Canción"  # Dawnsong (Canción del despertar)
+
+[roles.zvz_puas]
+emoji = "🥊"
+limit = 1
+en = "Púas"  # Spiked Gauntlets
+
+# One position for the three of them.
+[roles.zvz_galatinas]
+emoji = "⚔️"
+limit = 3
+en = "Galatinas"  # Galatine Pair
 
 
 # --- Free-form announcement ----------------------------------------------------
@@ -182,7 +306,23 @@ icon = "T8_2H_DUALAXE_KEEPER"
 roles = ["dive_tank", "dive_healer", "dive_support", "dive_dps1", "dive_dps2"]
 
 [activity.en]
-label = "Pelea / Dive (ta buffo)"
+label = "Pelea / Dive (5)"
+
+
+# The same with 7: three DPS, a healer, a support and two tanks.
+[[activity]]
+key = "dive7"
+emoji = "⚔️"
+color = "#C0392B"
+style = "danger"
+icon = "T8_2H_SCYTHE_HELL"
+roles = [
+    "dive7_dps1", "dive7_dps2", "dive7_dps3", "dive7_healer", "dive7_support",
+    "dive7_tank1", "dive7_tank2",
+]
+
+[activity.en]
+label = "Pelea / Dive (7)"
 
 
 # Group dungeon skipping. DPS 2 is optional.
@@ -211,3 +351,21 @@ roles = ["ava_maintank", "ava_offtank", "ava_healer", "ava_dps", "ava_support", 
 [activity.en]
 label = "Ava Raid"
 message = "De 8 a 10 personas. Las falces (de 3 a 5) deben llevar macro e ir por lo menos con un tier 5.4."
+
+
+# ZvZ, 19 players: one for each weapon, two Santificadores and three Galatinas.
+[[activity]]
+key = "zvz"
+emoji = "🏰"
+color = "#8E44AD"
+style = "danger"
+icon = "T8_2H_DUALSCIMITAR_UNDEAD"
+roles = [
+    "zvz_maza", "zvz_martillo", "zvz_juradores", "zvz_enraizado", "zvz_maldicion",
+    "zvz_sonido", "zvz_invocador", "zvz_santificador1", "zvz_santificador2", "zvz_infortunio",
+    "zvz_exaltado", "zvz_romperreinos", "zvz_cazaespiritus", "zvz_arcolargo", "zvz_cancion",
+    "zvz_puas", "zvz_galatinas",
+]
+
+[activity.en]
+label = "ZvZ"

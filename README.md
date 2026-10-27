@@ -12,7 +12,7 @@ buttons and the follow-up messages a caller needs.
 │ activity…                   │        │ 🕒 When   20:30 UTC · 16:30 your time · in 2 h│
 │                             │  ───►  │ 📍 Meeting point   🛡️ Gear      🎙️ Voice      │
 │ [🧹 Limpieza!]              │        │ Martlock portal    T8 · 1300 IP  #Estáticas   │
-│ [⚔️ Pelea / Dive (ta buffo)]│        │ 👥 Positions · 2/5                            │
+│ [⚔️ Pelea / Dive (5)]       │        │ 👥 Positions · 2/5                            │
 │ [⏩ Skip de grupales!]      │        │ 🛡️ Tank — @Mocha                              │
 └─────────────────────────────┘        │ 💚 Healer — open                              │
                                        │ 🔥 Dps 1 (Flami) — @Recruit                   │
@@ -139,13 +139,15 @@ people's announcements, from any panel they can see.
 
 `activities.toml` holds the panel: the activities, their emoji, colours, texts, the
 thumbnail (any Albion item id) and which sign-up roles each one offers. It currently has
-the guild's four comps: *Limpieza!* (static dungeons), *Pelea / Dive* (PvP diving on
-statics), *Skip de grupales!* (group dungeon skipping) and *Ava Raid* (8 to 10 players),
-each with its own spots as sign-up buttons. A position's `limit` is how many players it
-takes: 1 for every spot except the Ava Raid's falces, which share one position of 5 (an
-activity can have at most 8 roles). A role without a `limit` is one anyone can join, and
-an activity with such a role shows a head count per role instead of the list of
-positions. The file explains itself. After editing it:
+the guild's comps: *Limpieza!* (static dungeons), *Pelea / Dive* (PvP diving on statics,
+as a comp of 5 and one of 7), *Skip de grupales!* (group dungeon skipping), *Ava Raid*
+(8 to 10 players) and *ZvZ* (19 players, one position per weapon), each with its own spots
+as sign-up buttons.
+A position's `limit` is how many players it takes: 1 for every spot except the Ava Raid's
+falces, which share one position of 5, and the ZvZ's Galatinas, one position of 3 (an
+activity can have at most 20 roles: four rows of buttons). A role without a `limit` is
+one anyone can join, and an activity with such a role shows a head count per role
+instead of the list of positions. The file explains itself. After editing it:
 
 ```bash
 ./run.sh --check     # catches typos before Discord does
