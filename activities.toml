@@ -1,0 +1,213 @@
+# The activities your guild can announce, and the words the bot uses for them.
+#
+# Edit freely, then restart the bot and post a fresh panel with /panel (the buttons
+# on an old panel keep their old names). `./run.sh --check` validates this file
+# without connecting to Discord.
+#
+# Languages: a text can have an `en` and an `es` version. `en` is required, and it
+# is what a missing `es` falls back to. This guild's texts are the same in both
+# languages, so each one is written once, under `en`.
+
+
+# --- Sign-up roles -----------------------------------------------------------
+# The buttons under an announcement: one per position in the comp. An activity
+# lists the ones it wants in `roles`; an empty list means no sign-up buttons at
+# all. Each activity has its own positions here, named <activity>_<position>.
+#
+#   limit   how many players the position takes. Pressing a free position takes
+#           it and puts the player's name next to it; a full one is greyed out.
+#           Leave `limit` out for a role anyone can join: it then shows a head
+#           count instead.
+
+# Limpieza!
+
+[roles.limpieza_tank]
+emoji = "🛡️"
+limit = 1
+en = "Tank"
+
+[roles.limpieza_healer]
+emoji = "💚"
+limit = 1
+en = "Healer"
+
+[roles.limpieza_dps1]
+emoji = "🔥"
+limit = 1
+en = "Dps 1 (Flami)"
+
+[roles.limpieza_dps2]
+emoji = "⚔️"
+limit = 1
+en = "Dps 2 (SC)"
+
+[roles.limpieza_support]
+emoji = "🏹"
+limit = 1
+en = "Support (Badon)"
+
+# Pelea / Dive (ta buffo)
+
+[roles.dive_tank]
+emoji = "🛡️"
+limit = 1
+en = "Tank / Stopper"
+
+[roles.dive_healer]
+emoji = "💚"
+limit = 1
+en = "Healer (Info / Forja)"
+
+[roles.dive_support]
+emoji = "✨"
+limit = 1
+en = "Support (llama carroña / tallada)"
+
+[roles.dive_dps1]
+emoji = "🐻"
+limit = 1
+en = "DPS 1 (patas de oso)"
+
+[roles.dive_dps2]
+emoji = "⚔️"
+limit = 1
+en = "DPS 2 (manos de forja / luna)"
+
+# Skip de grupales!
+
+[roles.skip_tank]
+emoji = "🛡️"
+limit = 1
+en = "Maldi-Tanque"
+
+[roles.skip_healer]
+emoji = "💚"
+limit = 1
+en = "Healer (Toque / Santi)"
+
+[roles.skip_dps1]
+emoji = "🔥"
+limit = 1
+en = "DPS 1 (Flami)"
+
+[roles.skip_dps2]
+emoji = "⚔️"
+limit = 1
+en = "DPS 2 (OPT)"
+
+# Ava Raid
+
+[roles.ava_maintank]
+emoji = "🛡️"
+limit = 1
+en = "Main Tank (Caller)"
+
+[roles.ava_offtank]
+emoji = "🛡️"
+limit = 1
+en = "Off Tank"
+
+[roles.ava_healer]
+emoji = "💚"
+limit = 1
+en = "Healer Main"
+
+[roles.ava_dps]
+emoji = "⚔️"
+limit = 1
+en = "Iron DPS"
+
+[roles.ava_support]
+emoji = "✨"
+limit = 1
+en = "S.C. Support"
+
+# One position for all the falces: an activity takes at most 8 roles, so five
+# separate falce buttons would not fit.
+[roles.ava_falce]
+emoji = "🪓"
+limit = 5
+en = "Falce"
+
+
+# --- Free-form announcement ----------------------------------------------------
+# An extra last button on the panel: the caller writes the title and the message.
+# This guild does not use it. Remove the `# ` from these lines to bring it back.
+
+# [custom]
+# emoji = "📢"
+# color = "#5865F2"
+# style = "secondary"
+# roles = []
+# en = "Custom announcement"
+# es = "Anuncio libre"
+
+
+# --- Activities ----------------------------------------------------------------
+# One [[activity]] per panel button, in panel order (five buttons per row, at
+# most 24 activities).
+#
+#   key     short id, lowercase letters/digits/underscore. Don't rename it once
+#           announcements exist — it is how a button finds its activity.
+#   emoji   shown on the button and in the announcement.
+#   color   the announcement's accent colour, as #RRGGBB.
+#   style   the button colour: primary (blurple), secondary (grey),
+#           success (green) or danger (red).
+#   icon    optional thumbnail: an Albion item id (drawn by render.albiononline.com)
+#           or a full https:// image URL.
+#   roles   sign-up buttons for this activity, from the [roles] above.
+#   label   the name on the button and the announcement's title.
+#   message optional: a line under the title.
+
+# Static dungeons.
+[[activity]]
+key = "limpieza"
+emoji = "🧹"
+color = "#27AE60"
+style = "success"
+icon = "T8_2H_INFERNOSTAFF_MORGANA"
+roles = ["limpieza_tank", "limpieza_healer", "limpieza_dps1", "limpieza_dps2", "limpieza_support"]
+
+[activity.en]
+label = "Limpieza!"
+
+
+# PvP diving on static dungeons.
+[[activity]]
+key = "dive"
+emoji = "⚔️"
+color = "#C0392B"
+style = "danger"
+icon = "T8_2H_DUALAXE_KEEPER"
+roles = ["dive_tank", "dive_healer", "dive_support", "dive_dps1", "dive_dps2"]
+
+[activity.en]
+label = "Pelea / Dive (ta buffo)"
+
+
+# Group dungeon skipping. DPS 2 is optional.
+[[activity]]
+key = "skip"
+emoji = "⏩"
+color = "#3498DB"
+style = "primary"
+icon = "T8_MAIN_CURSEDSTAFF"
+roles = ["skip_tank", "skip_healer", "skip_dps1", "skip_dps2"]
+
+[activity.en]
+label = "Skip de grupales!"
+message = "Se puede llevar mas gente a leechear fama o para limpiar mas rapido"
+
+
+# Avalonian raid, 8 to 10 players: the five fixed positions plus 3 to 5 falces.
+[[activity]]
+key = "ava"
+emoji = "🌀"
+color = "#F1C40F"
+style = "secondary"
+icon = "T8_2H_AXE_AVALON"
+roles = ["ava_maintank", "ava_offtank", "ava_healer", "ava_dps", "ava_support", "ava_falce"]
+
+[activity.en]
+label = "Ava Raid"
+message = "De 8 a 10 personas. Las falces (de 3 a 5) deben llevar macro e ir por lo menos con un tier 5.4."

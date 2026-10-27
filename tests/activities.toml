@@ -1,0 +1,291 @@
+# The catalog the tests run against: a general-purpose panel with thirteen activities
+# and the free-form button. The guild's own panel is ../activities.toml, which its
+# officers edit freely; nothing in the tests depends on what that one says.
+#
+# Languages: every text has an `en` and an `es` version. English is required;
+# a missing Spanish text falls back to the English one.
+
+
+# --- Sign-up roles -----------------------------------------------------------
+# The buttons under an announcement. An activity lists the ones it wants in
+# `roles`; an empty list means no sign-up buttons at all.
+
+[roles.tank]
+emoji = "🛡️"
+en = "Tank"
+es = "Tanque"
+
+[roles.healer]
+emoji = "💚"
+en = "Healer"
+es = "Healer"
+
+[roles.dps]
+emoji = "⚔️"
+en = "DPS"
+es = "DPS"
+
+[roles.support]
+emoji = "✨"
+en = "Support"
+es = "Soporte"
+
+[roles.scout]
+emoji = "🔭"
+en = "Scout"
+es = "Scout"
+
+[roles.going]
+emoji = "✅"
+en = "I'm in"
+es = "Voy"
+
+
+# --- Free-form announcement ----------------------------------------------------
+# The last button on the panel: the caller writes the title and the message.
+# Delete this table to remove the button.
+
+[custom]
+emoji = "📢"
+color = "#5865F2"
+style = "secondary"
+roles = []
+en = "Custom announcement"
+es = "Anuncio libre"
+
+
+# --- Activities ----------------------------------------------------------------
+# One [[activity]] per panel button, in panel order (five buttons per row, at
+# most 24 activities).
+#
+#   key     short id, lowercase letters/digits/underscore. Don't rename it once
+#           announcements exist — it is how a button finds its activity.
+#   emoji   shown on the button and in the announcement.
+#   color   the announcement's accent colour, as #RRGGBB.
+#   style   the button colour: primary (blurple), secondary (grey),
+#           success (green) or danger (red).
+#   icon    optional thumbnail: an Albion item id (drawn by render.albiononline.com)
+#           or a full https:// image URL.
+#   roles   sign-up buttons for this activity, from the [roles] above.
+#   label   the name on the button and the announcement's title.
+#   message the line under the title.
+
+[[activity]]
+key = "zvz"
+emoji = "⚔️"
+color = "#C0392B"
+style = "danger"
+icon = "T8_MOUNT_MAMMOTH_BATTLE@1"
+roles = ["tank", "healer", "dps", "support"]
+
+[activity.en]
+label = "ZvZ"
+message = "The guild is massing for a ZvZ. Grab your set, get on voice and stay on the caller."
+
+[activity.es]
+label = "ZvZ"
+message = "El gremio se junta para ZvZ. Trae tu set, entra a voz y pégate al caller."
+
+
+[[activity]]
+key = "castle"
+emoji = "🏰"
+color = "#7F8C8D"
+style = "danger"
+icon = "T8_2H_REPEATINGCROSSBOW_UNDEAD"
+roles = ["tank", "healer", "dps", "support"]
+
+[activity.en]
+label = "Castle / Outposts"
+message = "Castles and outposts run on a timer — be at the meeting point early, geared and on voice."
+
+[activity.es]
+label = "Castillo / Puestos"
+message = "Los castillos y puestos van con timer: llega antes al punto de reunión, equipado y en voz."
+
+
+[[activity]]
+key = "smallscale"
+emoji = "🐺"
+color = "#E67E22"
+style = "danger"
+icon = "T8_2H_CLAYMORE"
+roles = ["tank", "healer", "dps", "support"]
+
+[activity.en]
+label = "Small Scale"
+message = "Small-scale roam heading out. PvP set, a good mount, and stay tight on the caller."
+
+[activity.es]
+label = "Small Scale"
+message = "Sale roaming de small scale. Set de PvP, buena montura y bien pegados al caller."
+
+
+[[activity]]
+key = "ganking"
+emoji = "🗡️"
+color = "#8E44AD"
+style = "danger"
+icon = "T8_MAIN_RAPIER_MORGANA"
+roles = ["dps", "healer", "scout"]
+
+[activity.en]
+label = "Ganking"
+message = "Gank squad forming up. Fast mounts, gank builds and a lot of patience."
+
+[activity.es]
+label = "Gankeo"
+message = "Se arma gank squad. Monturas rápidas, builds de gank y mucha paciencia."
+
+
+[[activity]]
+key = "hellgate"
+emoji = "🔥"
+color = "#D35400"
+style = "danger"
+icon = "T8_HEAD_PLATE_HELL"
+roles = ["tank", "healer", "dps", "support"]
+
+[activity.en]
+label = "Hellgate"
+message = "Hellgate team forming. Sign up with the role you can play and have your set ready."
+
+[activity.es]
+label = "Hellgate"
+message = "Armamos equipo de Hellgate. Anótate con el rol que puedas jugar y ten tu set listo."
+
+
+[[activity]]
+key = "crystal"
+emoji = "💎"
+color = "#3498DB"
+style = "danger"
+icon = "T8_MAIN_SWORD_CRYSTAL"
+roles = ["tank", "healer", "dps", "support"]
+
+[activity.en]
+label = "Crystal League"
+message = "Crystal League match coming up. We need a full team — sign up with your role."
+
+[activity.es]
+label = "Crystal League"
+message = "Se viene partida de Crystal League. Necesitamos equipo completo: anótate con tu rol."
+
+
+[[activity]]
+key = "fame"
+emoji = "📚"
+color = "#27AE60"
+style = "success"
+icon = "T4_SKILLBOOK_STANDARD"
+roles = ["tank", "healer", "dps", "support"]
+
+[activity.en]
+label = "Fame Farm"
+message = "Fame farm group starting. Bring your farming set and the weapon you want to level."
+
+[activity.es]
+label = "Fame Farm"
+message = "Arranca grupo de fame farm. Trae tu set de farmeo y el arma que quieras subir."
+
+
+[[activity]]
+key = "avalonian"
+emoji = "🏛️"
+color = "#F1C40F"
+style = "success"
+icon = "T8_HEAD_PLATE_AVALON"
+roles = ["tank", "healer", "dps", "support"]
+
+[activity.en]
+label = "Avalonian Dungeon"
+message = "Avalonian dungeon run. The comp is strict, so sign up with a role you can really play."
+
+[activity.es]
+label = "Avaloniana"
+message = "Run de mazmorra avaloniana. La comp es estricta: anótate con un rol que de verdad domines."
+
+
+[[activity]]
+key = "worldboss"
+emoji = "🐲"
+color = "#16A085"
+style = "success"
+icon = "T8_2H_DUALAXE_KEEPER"
+roles = ["tank", "healer", "dps", "support"]
+
+[activity.en]
+label = "World Boss"
+message = "World boss fame farm. Stable party and a long session — check the gear requirement first."
+
+[activity.es]
+label = "World Boss"
+message = "Fame farm en world boss. Party estable y sesión larga: revisa primero el set requerido."
+
+
+[[activity]]
+key = "roads"
+emoji = "🌀"
+color = "#1ABC9C"
+style = "success"
+icon = "T8_CAPEITEM_AVALON"
+roles = ["tank", "healer", "dps", "support"]
+
+[activity.en]
+label = "Roads of Avalon"
+message = "Heading into the Roads of Avalon — chests, camps and whoever we run into."
+
+[activity.es]
+label = "Caminos de Avalon"
+message = "Nos metemos a los Caminos de Avalon: cofres, campamentos y lo que se cruce."
+
+
+[[activity]]
+key = "faction"
+emoji = "🚩"
+color = "#2980B9"
+style = "primary"
+icon = "T8_CAPEITEM_FW_CAERLEON"
+roles = ["going"]
+
+[activity.en]
+label = "Faction Warfare"
+message = "Faction warfare time. Flag up, bring a cheap set and come take outposts."
+
+[activity.es]
+label = "Facción"
+message = "Hora de faccionar. Ponte la bandera, trae un set barato y vamos por los puestos."
+
+
+[[activity]]
+key = "gathering"
+emoji = "⛏️"
+color = "#95A5A6"
+style = "primary"
+icon = "T8_2H_TOOL_PICK"
+roles = ["going", "scout"]
+
+[activity.en]
+label = "Gathering"
+message = "Gathering party heading out. Bring your gathering gear; scouts are very welcome."
+
+[activity.es]
+label = "Recolección"
+message = "Sale grupo de recolección. Trae tu equipo de recolección; los scouts son más que bienvenidos."
+
+
+[[activity]]
+key = "transport"
+emoji = "📦"
+color = "#A0522D"
+style = "primary"
+icon = "T8_MOUNT_MAMMOTH_TRANSPORT"
+roles = ["going", "scout"]
+
+[activity.en]
+label = "Transport"
+message = "Transport run. We need escorts and scouts to get the cargo there in one piece."
+
+[activity.es]
+label = "Transporte"
+message = "Transporte en camino. Necesitamos escoltas y scouts para que la carga llegue entera."

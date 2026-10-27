@@ -1,0 +1,42 @@
+[project]
+name = "albion-announcer"
+version = "0.1.0"
+description = "Discord bot that calls Albion Online guild activities with one button"
+requires-python = ">=3.12"
+dependencies = [
+    "discord.py>=2.7",
+    "python-dotenv>=1.0",
+    # zoneinfo needs a timezone database. Linux and macOS ship one; Windows does not.
+    "tzdata>=2025.1; sys_platform == 'win32'",
+]
+
+[project.scripts]
+albion-announcer = "announcer.__main__:main"
+
+[dependency-groups]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.25", "ruff>=0.9", "mypy>=1.14"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["announcer"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC", "RUF", "BLE"]
+# RUF001: the strings are full of emoji, accents and typographic dashes on purpose.
+ignore = ["E501", "RUF001"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+check_untyped_defs = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
